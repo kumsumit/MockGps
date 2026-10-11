@@ -1,4 +1,4 @@
-package com.lilstiffy.mockgps
+package com.kumpali.mockgps
 
 import org.junit.Assert.assertEquals
 import org.junit.Test
