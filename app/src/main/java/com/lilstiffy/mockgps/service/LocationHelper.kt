@@ -2,13 +2,18 @@ package com.lilstiffy.mockgps.service
 
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.model.LatLng
+import com.lilstiffy.mockgps.MainActivity
 import com.lilstiffy.mockgps.MockGpsApp
 
 
@@ -16,20 +21,54 @@ object LocationHelper {
     private const val REQUEST_CODE = 69
     val DEFAULT_LOCATION = LatLng(40.712776, -74.005974)
 
-    fun requestPermissions(activity: ComponentActivity) {
-        activity.requestPermissions(
-            arrayOf(
-                ACCESS_FINE_LOCATION,
-                ACCESS_COARSE_LOCATION
-            ), REQUEST_CODE
+    fun getRequiredPermissions(): Array<String> {
+        val permissions = mutableListOf(
+            ACCESS_FINE_LOCATION,
+            ACCESS_COARSE_LOCATION
         )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissions.add(android.Manifest.permission.POST_NOTIFICATIONS)
+        }
+        return permissions.toTypedArray()
     }
 
-    fun hasPermission(activity: ComponentActivity): Boolean {
+    fun requestPermissions(activity: ComponentActivity) {
+        if (activity is MainActivity) {
+            activity.requestLocationPermission()
+        } else {
+            activity.requestPermissions(
+                getRequiredPermissions(),
+                REQUEST_CODE
+            )
+        }
+    }
+
+    fun hasPermission(context: Context): Boolean {
         return ContextCompat.checkSelfPermission(
-            activity,
+            context,
             ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    fun openAppSettings(context: Context) {
+        val intent = Intent(
+            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+            Uri.fromParts("package", context.packageName, null)
+        ).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        context.startActivity(intent)
+    }
+
+    fun openDeveloperSettings(context: Context) {
+        try {
+            val intent = Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(intent)
+        } catch (_: Exception) {
+            openAppSettings(context)
+        }
     }
 
     // Geocoding

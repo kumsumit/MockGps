@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -109,7 +109,9 @@ fun MapScreen(
             cameraPositionState = cameraPositionState
         ) {
             Marker(
-                state = MarkerState(mapViewModel.markerPosition.value)
+                state = remember(mapViewModel.markerPosition.value) {
+                    MarkerState(mapViewModel.markerPosition.value)
+                }
             )
         }
 
@@ -155,7 +157,7 @@ fun MapScreen(
                 )
             ) {
                 Icon(
-                    imageVector = Icons.Filled.List,
+                    imageVector = Icons.AutoMirrored.Filled.List,
                     contentDescription = "show favorites"
                 )
             }

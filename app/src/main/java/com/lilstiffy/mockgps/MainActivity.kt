@@ -1,5 +1,6 @@
 package com.lilstiffy.mockgps
 
+import android.Manifest
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -9,12 +10,14 @@ import android.os.IBinder
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.app.ActivityCompat
 import androidx.core.view.WindowCompat
 import com.lilstiffy.mockgps.service.LocationHelper
 import com.lilstiffy.mockgps.service.MockLocationService
@@ -43,8 +46,52 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private val locationPermissionRequest = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val isGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+                permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+        if (isGranted) {
+            Toast.makeText(this, "Location permission granted", Toast.LENGTH_SHORT).show()
+        } else {
+            val showRationale = ActivityCompat.shouldShowRequestPermissionRationale(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) || ActivityCompat.shouldShowRequestPermissionRationale(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+            if (!showRationale) {
+                Toast.makeText(
+                    this,
+                    "Location permission required. Opening Settings...",
+                    Toast.LENGTH_LONG
+                ).show()
+                LocationHelper.openAppSettings(this)
+            } else {
+                Toast.makeText(
+                    this,
+                    "Location permission is required to mock location",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    fun requestLocationPermission() {
+        if (!LocationHelper.hasPermission(this)) {
+            locationPermissionRequest.launch(LocationHelper.getRequiredPermissions())
+        }
+    }
+
     fun toggleMocking(): Boolean {
-        if (isBound && LocationHelper.hasPermission(this)) {
+        if (!LocationHelper.hasPermission(this)) {
+            Toast.makeText(this, "Location permission required", Toast.LENGTH_SHORT).show()
+            requestLocationPermission()
+            return false
+        }
+
+        if (isBound) {
             mockLocationService?.toggleMocking()
             if (mockLocationService?.isMocking == true) {
                 Toast.makeText(this, "Mocking location...", Toast.LENGTH_SHORT).show()
@@ -55,10 +102,9 @@ class MainActivity : ComponentActivity() {
                 VibratorService.vibrate()
                 return false
             }
-        } else if (!isBound && LocationHelper.hasPermission(this))
+        } else {
             Toast.makeText(this, "Service not bound", Toast.LENGTH_SHORT).show()
-        else
-            Toast.makeText(this, "No Location permission", Toast.LENGTH_SHORT).show()
+        }
 
         return false
     }
