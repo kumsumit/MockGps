@@ -4,12 +4,12 @@ import android.location.Address
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.google.android.gms.maps.model.LatLng
 import com.kumpali.mockgps.extensions.displayString
 import com.kumpali.mockgps.service.LocationHelper
 import com.kumpali.mockgps.service.MockLocationService
 import com.kumpali.mockgps.storage.StorageManager
 import com.kumpali.mockgps.ui.models.LocationEntry
+import com.kumpali.mockgps.ui.models.LatLng
 
 class MapViewModel : ViewModel() {
     var markerPosition: MutableState<LatLng> = mutableStateOf(StorageManager.getLatestLocation())

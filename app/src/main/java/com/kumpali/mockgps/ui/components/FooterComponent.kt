@@ -42,13 +42,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.android.gms.maps.model.LatLng
 import com.kumpali.mockgps.extensions.displayString
 import com.kumpali.mockgps.extensions.prettyPrint
 import com.kumpali.mockgps.service.VibratorService
 import com.kumpali.mockgps.ui.theme.ButtonGreen
 import com.kumpali.mockgps.ui.theme.ButtonRed
 import com.kumpali.mockgps.ui.theme.Gold
+import com.kumpali.mockgps.ui.models.LatLng
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable

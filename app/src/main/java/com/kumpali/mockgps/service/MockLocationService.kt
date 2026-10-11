@@ -18,7 +18,7 @@ import android.os.SystemClock
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
-import com.google.android.gms.maps.model.LatLng
+import com.kumpali.mockgps.ui.models.LatLng
 import com.kumpali.mockgps.MainActivity
 import com.kumpali.mockgps.MockGpsApp
 import com.kumpali.mockgps.R
@@ -48,6 +48,9 @@ class MockLocationService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        // The map may not have emitted a selection yet when the user starts mocking.
+        // Always begin with the latest persisted location instead of an uninitialized value.
+        latLng = StorageManager.getLatestLocation()
         Log.d(TAG, "Service created")
     }
 

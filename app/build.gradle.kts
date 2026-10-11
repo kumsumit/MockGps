@@ -6,16 +6,16 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
-var props = Properties()
-var propsFile = rootProject.file("env.properties")
-if (propsFile.exists()) {
-    props.load(FileInputStream(propsFile))
-}
-
 val signingProps = Properties()
 val signingPropsFile = rootProject.file("key.properties")
 if (signingPropsFile.exists()) {
     signingProps.load(FileInputStream(signingPropsFile))
+}
+
+val envProps = Properties()
+val envPropsFile = rootProject.file("env.properties")
+if (envPropsFile.exists()) {
+    envProps.load(FileInputStream(envPropsFile))
 }
 
 android {
@@ -29,12 +29,15 @@ android {
         versionCode = 5
         versionName = "1.0.4"
 
-        manifestPlaceholders["API_KEY"] = props.getProperty("MAPS_API_KEY") ?: ""
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
+        buildConfigField(
+            "String",
+            "PLACES_API_KEY",
+            "\"${envProps.getProperty("MAPS_API_KEY", "")}\""
+        )
     }
 
     signingConfigs {
@@ -71,6 +74,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     packaging {
         resources {
@@ -83,6 +87,7 @@ dependencies {
 
     implementation("androidx.core:core-ktx:1.19.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.11.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.11.0")
     implementation("androidx.activity:activity-compose:1.13.0")
     implementation("androidx.fragment:fragment-ktx:1.9.0")
     implementation(platform("androidx.compose:compose-bom:2026.09.00"))
@@ -100,8 +105,16 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
-    // Google maps for Compose
-    implementation("com.google.maps.android:maps-compose:9.0.0")
+    // OpenStreetMap rendering through osmdroid. No API key is required.
+    implementation("org.osmdroid:osmdroid-android:6.1.20") {
+        exclude(group = "androidx.vectordrawable", module = "vectordrawable-animated")
+    }
+
+    // Google Places search only; map rendering remains OpenStreetMap.
+    implementation("com.google.android.libraries.places:places:3.5.0") {
+        exclude(group = "androidx.vectordrawable", module = "vectordrawable")
+        exclude(group = "androidx.vectordrawable", module = "vectordrawable-animated")
+    }
 
     // Viewmodel
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0")

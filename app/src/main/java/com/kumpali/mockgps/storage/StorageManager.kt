@@ -3,12 +3,12 @@ package com.kumpali.mockgps.storage
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.google.android.gms.maps.model.LatLng
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.kumpali.mockgps.extensions.equalTo
 import com.kumpali.mockgps.service.LocationHelper
 import com.kumpali.mockgps.ui.models.LocationEntry
+import com.kumpali.mockgps.ui.models.LatLng
 
 object StorageManager {
     private const val PREF = "gpsprefs"
